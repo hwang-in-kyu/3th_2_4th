@@ -11,17 +11,16 @@ def load_models():
         trust_remote_code=True 
     )
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16
-    )
+    # bnb_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_use_double_quant=True,
+    #     bnb_4bit_quant_type="nf4",
+    #     bnb_4bit_compute_dtype=torch.bfloat16
+    # )
 
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH, 
         device_map='auto',
-        quantization_config=bnb_config,
         dtype=torch.bfloat16,
         local_files_only=True,
         trust_remote_code=True,
