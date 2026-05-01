@@ -197,9 +197,14 @@ if st.session_state.page == 'main':
                 st.session_state.king_name = king_name
 
                 king_data = generate_king_config(king_name, llm=st.session_state.llm_generator)
-                
+
                 if king_data is None:
-                    king_data = KING_CONFIG_FALLBACK.get(king_name)
+                    king_key = option  # 태조, 세종, 단종, 세조, 연산군
+                    king_data = KING_CONFIG_FALLBACK.get(king_key)
+
+                if king_data is None:
+                    st.error("왕 페르소나 정보를 불러오지 못했습니다.")
+                    st.stop()
 
                 st.session_state.king_data = king_data
                 
