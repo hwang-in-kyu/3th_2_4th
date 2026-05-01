@@ -200,14 +200,14 @@ if st.session_state.page == 'main':
 
                 if king_data is None:
                     king_key = option  # 태조, 세종, 단종, 세조, 연산군
-                    king_data = KING_CONFIG_FALLBACK.get(king_key)
+                    king_data = KING_CONFIG_FALLBACK.get(option)
 
                 if king_data is None:
                     st.error("왕 페르소나 정보를 불러오지 못했습니다.")
                     st.stop()
 
                 st.session_state.king_data = king_data
-                
+
                 # 다음 페이지로 전환
                 st.session_state.page = 'role_select'
                 st.rerun()
