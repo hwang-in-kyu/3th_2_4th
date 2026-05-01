@@ -8,6 +8,7 @@ from src.models import load_models, load_embeddings
 from src.graph import build_graph
 from src.utils.get_persona import generate_king_config
 from src.utils.gen_scene import generate_initial_scene
+from src.config import KING_CONFIG_FALLBACK
 
 st.set_page_config(layout="wide")
 
@@ -195,11 +196,10 @@ if st.session_state.page == 'main':
                 king_name = '태조 이성계' if option == '태조' else option
                 st.session_state.king_name = king_name
                 st.session_state.king_data = generate_king_config(king_name, llm=st.session_state.llm_generator)
+                if king_data is None:
+                    king_data = KING_CONFIG_FALLBACK.get(option)
 
-                # 초기화 이전 대화 삭제
-                st.session_state.messages = []
-                st.session_state.anger_level = 0
-                st.session_state.scenario = ""
+                st.session_state.king_data = king_data
                 
                 # 다음 페이지로 전환
                 st.session_state.page = 'role_select'
