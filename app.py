@@ -9,6 +9,32 @@ from src.graph import build_graph
 from src.utils.get_persona import generate_king_config
 from src.utils.gen_scene import generate_initial_scene
 
+st.set_page_config(layout="wide")
+
+@st.cache_resource
+def get_resources():
+    llms = load_models()
+
+    embeddings = load_embeddings()
+
+    persistent_client = chromadb.PersistentClient(
+        path="./database/reference_db"
+    )
+
+    vectorstore = Chroma(
+        client=persistent_client,
+        embedding_function=embeddings,
+        collection_name="reference"
+    )
+
+    app_graph = build_graph(
+        llms["analyzer"],
+        llms["generator"],
+        vectorstore
+    )
+
+    return llms, app_graph
+
 st.markdown("""
 <style>
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
@@ -30,8 +56,6 @@ if 'page' not in st.session_state:
 def image_to_base64(path):
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
-
-st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
@@ -163,18 +187,19 @@ if st.session_state.page == 'main':
             )
         if st.button("대화 시작"):
             with st.spinner("로컬 모델 및 벡터 DB를 불러오는 중입니다..."):
-                llms = load_models()
-                st.session_state.llm_generator = llms["generator"]
-                
-                embeddings = load_embeddings()
-                persistent_client = chromadb.PersistentClient(path="./database/reference_db")
-                vectorstore = Chroma(client=persistent_client, embedding_function=embeddings, collection_name='reference')
+                llms, app_graph = get_resources()
 
-                st.session_state.app_graph = build_graph(llms["analyzer"], llms["generator"], vectorstore)
+                st.session_state.llm_generator = llms["generator"]
+                st.session_state.app_graph = app_graph
                 
                 king_name = '태조 이성계' if option == '태조' else option
                 st.session_state.king_name = king_name
                 st.session_state.king_data = generate_king_config(king_name, llm=st.session_state.llm_generator)
+
+                # 초기화 이전 대화 삭제
+                st.session_state.messages = []
+                st.session_state.anger_level = 0
+                st.session_state.scenario = ""
                 
                 # 다음 페이지로 전환
                 st.session_state.page = 'role_select'
