@@ -195,9 +195,11 @@ if st.session_state.page == 'main':
                 
                 king_name = '태조 이성계' if option == '태조' else option
                 st.session_state.king_name = king_name
-                st.session_state.king_data = generate_king_config(king_name, llm=st.session_state.llm_generator)
+
+                king_data = generate_king_config(king_name, llm=st.session_state.llm_generator)
+                
                 if king_data is None:
-                    king_data = KING_CONFIG_FALLBACK.get(option)
+                    king_data = KING_CONFIG_FALLBACK.get(king_name)
 
                 st.session_state.king_data = king_data
                 
